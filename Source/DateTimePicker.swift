@@ -263,6 +263,7 @@ public protocol DateTimePickerDelegate: AnyObject {
     public var hapticFeedbackEnabled: Bool = true
     
     public var completionHandler: ((Date)->Void)?
+    public var todayHandler: (() -> Void)?
     public var dismissHandler: (() -> Void)?
     public weak var delegate: DateTimePickerDelegate?
 
@@ -417,7 +418,6 @@ public protocol DateTimePickerDelegate: AnyObject {
         todayButton.addTarget(self, action: #selector(DateTimePicker.setToday), for: .touchUpInside)
         todayButton.contentHorizontalAlignment = isRTL ? .left : .right
         todayButton.titleLabel?.font = customFontSetting.todayButtonFont
-        todayButton.isHidden = self.minimumDate.compare(Date()) == .orderedDescending || self.maximumDate.compare(Date()) == .orderedAscending
 		
         // day collection view
         dayCollectionView.backgroundColor = daysBackgroundColor
@@ -659,8 +659,9 @@ private extension DateTimePicker {
     
     @objc
     func setToday() {
-        selectedDate = Date()
-        resetTime()
+        todayHandler?()
+        modalCloseHandler?()
+        dismissHandler?()
     }
     
     func triggerHaptic() {
